@@ -10,25 +10,25 @@ game::Game::Game()
 }
 
 bool game::Game::Initialize(){
-    bool failed = false; // 失敗したか否か  Whether failed or not
+    bool failed;
 
     // SDLライブラリの初期化  Initialization of SDL
     failed = SDL_Init(FLAGS_OF_SDL_INIT);
     if(failed){
         SDL_Log("In game::Game::Initialize(): SDL could not be initialized! SDL Error: %s", SDL_GetError());
-        return false;
+        return 1;
     }
     // SDL_imageライブラリの初期化  Initialization of SDL_image
     failed = !IMG_Init(FLAGS_OF_IMG_INIT);
     if(failed){
         SDL_Log("In game::Game::Initialize(): SDL_image could not be initialized! SDL Error: %s", SDL_GetError());
-        return false;
+        return 1;
     }
     // SDL_ttfライブラリの初期化  Initialization of SDL_ttf
     failed = TTF_Init();
     if(failed){
         SDL_Log("In game::Game::Initialize(): SDL_ttf could not be initialized! SDL Error: %s", SDL_GetError());
-        return false;
+        return 1;
     }
     // ウィンドウを生成  Create window
     m_window = SDL_CreateWindow(
@@ -41,7 +41,7 @@ bool game::Game::Initialize(){
     );
     if(!m_window){
         SDL_Log("In game::Game::Initialize(): Window could not be created! SDL Error: %s", SDL_GetError());
-        return false;
+        return 1;
     }
     // レンダラーを生成  Create renderer
     m_renderer = SDL_CreateRenderer(
@@ -51,7 +51,7 @@ bool game::Game::Initialize(){
     );
     if(!m_renderer){
         SDL_Log("In game::Game::Initialize(): Renderer could not be created! SDL Error: %s", SDL_GetError());
-        return false;
+        return 1;
     }
     // レンダースケールを設定  Set render scale
     failed = SDL_RenderSetScale(m_renderer, game::RENDER_SCALE, game::RENDER_SCALE);
@@ -59,7 +59,7 @@ bool game::Game::Initialize(){
         SDL_Log("In game::Game::Initialize(): Render scale could not be set! SDL Error: %s", SDL_GetError());
     }
 
-    return true;
+    return 0;
 }
 
 void game::Game::Shutdown(){
