@@ -69,6 +69,7 @@ void game::Game::Shutdown(){
     SDL_DestroyWindow(m_window);
     // ライブラリを終了  Shutdown libraries
     IMG_Quit();
+    TTF_Init();
     SDL_Quit();
     // 終了メッセージ  Shutdown message;
     SDL_Log("In game::Game::Shutdown(): Game was completely shutdowned.");
