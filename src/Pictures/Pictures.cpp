@@ -1,7 +1,8 @@
 #include "Pictures.h"
 
-pictures::Picture::Picture(pictures::Textures* textures, std::string path, common::Vec2 xy)
-:m_textures(textures)
+pictures::Picture::Picture(game::Game* game, pictures::Textures* textures, std::string path, common::Vec2 xy)
+:m_game(game)
+,m_textures(textures)
 ,m_is_text(false)
 ,m_path(path)
 ,m_xy(xy)
@@ -10,8 +11,9 @@ pictures::Picture::Picture(pictures::Textures* textures, std::string path, commo
 ,m_angle_rad(0.0)
 ,m_flip(SDL_FLIP_NONE)
 ,m_num_of_segs(1, 1)
-,m_start_frame(0)
-,m_last_frame(0)
+,m_in_animation(false)
+,m_start_seg(0)
+,m_last_seg(0)
 ,m_fpf(1)
 {
     m_srcrct = new SDL_Rect;
@@ -25,8 +27,9 @@ pictures::Picture::Picture(pictures::Textures* textures, std::string path, commo
     m_color.a = 255;
 }
 
-pictures::Picture::Picture(pictures::TextTextures* text_textures, std::string path, std::string text, uint16_t pt, common::Vec2 xy)
-:m_text_textures(text_textures)
+pictures::Picture::Picture(game::Game* game, pictures::TextTextures* text_textures, std::string path, std::string text, uint16_t pt, common::Vec2 xy)
+:m_game(game)
+,m_text_textures(text_textures)
 ,m_is_text(true)
 ,m_path(path)
 ,m_text(text)
@@ -37,8 +40,9 @@ pictures::Picture::Picture(pictures::TextTextures* text_textures, std::string pa
 ,m_angle_rad(0.0)
 ,m_flip(SDL_FLIP_NONE)
 ,m_num_of_segs(1, 1)
-,m_start_frame(0)
-,m_last_frame(0)
+,m_in_animation(false)
+,m_start_seg(0)
+,m_last_seg(0)
 ,m_fpf(1)
 {
     m_srcrct = new SDL_Rect;
@@ -76,12 +80,13 @@ bool pictures::Picture::Display(){
     return 0;
 }
 
-bool pictures::Picture::Animation(int64_t start_game_frame, int64_t current_game_frame){
+bool pictures::Picture::Animation(){
     bool failed;
+    int64_t current_game_frame = m_game->GetFrames();
     // アニメーション開始からのフレーム数  Number of frames since the start of the animation
-    double frames_from_animation_start = current_game_frame - start_game_frame;
+    double frames_from_animation_start = current_game_frame - m_start_game_frame;
     // アニメーションのフレーム数  // Num of frames of animation
-    double animation_frames = m_last_frame - m_start_frame;
+    double animation_frames = m_last_seg - m_start_seg;
     // アニメーション1ループにかかるフレーム数  Number of frames per animation loop
     double frames_per_loop = animation_frames * m_fpf;
     // 現在のアニメーションループの開始からのゲームのフレーム数を計算  Calculates the number of game frames since the start of the current animation loop
@@ -132,7 +137,7 @@ pictures::Pictures::~Pictures(){
     // ピクチャをすべて破棄する  Destroy all picutures
     for(auto itr1 = m_pictures.begin(); itr1 != m_pictures.end(); itr1++){
         for(auto itr2 = itr1->second.begin(); itr2 != itr1->second.end(); itr2++){
-            delete itr2->second.picture;
+            delete itr2->second;
         }
     }
 }
@@ -147,9 +152,7 @@ bool pictures::Pictures::Add(pictures::LayerAndNo layer_and_no, std::string path
         return 1;
     }
     // 新しいピクチャを作りmapに追加  Create a new picture and add to the map
-    m_pictures[layer][no].picture = new pictures::Picture(m_textures, path, xy);
-    // ピクチャのアニメーション状況をfalseで初期化  Initialize picture animation status with false
-    m_pictures[layer][no].in_animation = false;
+    m_pictures[layer][no] = new pictures::Picture(m_game, m_textures, path, xy);
     return 0;
 }
 
@@ -171,9 +174,7 @@ bool pictures::Pictures::Add(pictures::LayerAndNo layer_and_no, std::string path
     uint32_t current_num_of_pictures = m_text_textures->GetNumOfPictures(path, text, pt);
     m_text_textures->SetNumOfPictures(path, text, pt, current_num_of_pictures + 1);
     // 新しいピクチャを作りmapに追加  Create a new picture and add to the map
-    m_pictures[layer][no].picture = new pictures::Picture(m_text_textures, path, text, pt, xy);
-    // ピクチャのアニメーション状況をfalseで初期化  Initialize picture animation status with false
-    m_pictures[layer][no].in_animation = false;
+    m_pictures[layer][no] = new pictures::Picture(m_game, m_text_textures, path, text, pt, xy);
     return 0;
 }
 
@@ -188,10 +189,10 @@ bool pictures::Pictures::Delete(pictures::LayerAndNo layer_and_no){
         return 0;
     }
     // テキストの場合  if text
-    if(m_pictures[layer][no].picture->GetIsText()){
-        std::string path = m_pictures[layer][no].picture->GetPath();
-        std::string text = m_pictures[layer][no].picture->GetText();
-        uint16_t pt = m_pictures[layer][no].picture->GetPt();
+    if(m_pictures[layer][no]->GetIsText()){
+        std::string path = m_pictures[layer][no]->GetPath();
+        std::string text = m_pictures[layer][no]->GetText();
+        uint16_t pt = m_pictures[layer][no]->GetPt();
         // テクスチャから作られたピクチャの数を-1  -1 to the number of pictures created from the texture
         uint32_t current_num_of_pictures = m_text_textures->GetNumOfPictures(path, text, pt);
         m_text_textures->SetNumOfPictures(path, text, pt, current_num_of_pictures - 1);
@@ -206,7 +207,7 @@ bool pictures::Pictures::Delete(pictures::LayerAndNo layer_and_no){
         }
     }
     // ピクチャを破棄する  Destroy picture
-    delete m_pictures[layer][no].picture;
+    delete m_pictures[layer][no];
     m_pictures[layer].erase(no);
     return 0;
 }
@@ -214,14 +215,14 @@ bool pictures::Pictures::Delete(pictures::LayerAndNo layer_and_no){
 void pictures::Pictures::StartAnimation(pictures::LayerAndNo layer_and_no){
     pictures::Layer layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
-    m_pictures[layer][no].in_animation = true;
-    m_pictures[layer][no].start_game_frame = m_game->GetFrames();
+    m_pictures[layer][no]->SetInAnimation(true);
+    m_pictures[layer][no]->SetStartGameFrame(m_game->GetFrames());
 }
 
 void pictures::Pictures::StopAnimation(pictures::LayerAndNo layer_and_no){
     pictures::Layer layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
-    m_pictures[layer][no].in_animation = false;
+    m_pictures[layer][no]->SetInAnimation(false);
 }
 
 bool pictures::Pictures::DisplayAll(){
@@ -231,15 +232,15 @@ bool pictures::Pictures::DisplayAll(){
     for(auto itr1 = m_pictures.begin(); itr1 != m_pictures.end(); itr1++){
         for(auto itr2 = itr1->second.begin(); itr2 != itr1->second.end(); itr2++){
             // アニメーション中の時  When in animation
-            if(itr2->second.in_animation){
-                failed = itr2->second.picture->Animation(itr2->second.start_game_frame, m_game->GetFrames());
+            if(itr2->second->GetInAnimation()){
+                failed = itr2->second->Animation();
                 if(failed){
                     SDL_Log("In pictures::Pictures::DisplayAll(): Picture could not be animated!");
                     return 1;
                 }
             // アニメーション中でない時  When not in animation
             }else{
-                failed = itr2->second.picture->Display();
+                failed = itr2->second->Display();
                 if(failed){
                     SDL_Log("In pictures::Pictures::DisplayAll(): Pictures could not be displayed!");
                     return 1;

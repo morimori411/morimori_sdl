@@ -18,6 +18,7 @@ namespace pictures{
 
     class Picture{
         private:
+        game::Game *m_game;
         pictures::Textures* m_textures;
         pictures::TextTextures* m_text_textures;
         bool m_is_text; // ピクチャが画像かテキストか  Whether the picture is an image or text
@@ -31,27 +32,30 @@ namespace pictures{
         double m_angle_rad; // ピクチャの回転角度[rad]  Picture rotation angle[rad]
         SDL_RendererFlip m_flip; // ピクチャの縦横反転  Flip picture horizontally and vertically
         SDL_Color m_color; // 色調補正  Color modulation
+        bool m_in_animation; // アニメーション中かどうか  Whether animation is in progress or not
+        int64_t m_start_game_frame; // アニメーションのゲーム起動から数えた開始フレーム  Start frame of animation counted from game startup.
         common::Vec2 m_num_of_segs; // ピクチャの分割数（アニメーション用）  Number of segmentation of picture (for animation) 
-        int32_t m_start_frame; // アニメーションの開始フレーム（範囲に含まれる 0始まり）  Animation start frame (included within range. zero-indexed)
-        int32_t m_last_frame; // アニメーションの終了フレーム（範囲に含まれない 0始まり）  Animation final frame (not included within range. zero-indexed)
+        int32_t m_start_seg; // アニメーションの開始区画（範囲に含まれる 0始まり）  Animation start segment (included within range. zero-indexed)
+        int32_t m_last_seg; // アニメーションの終了区画（範囲に含まれない 0始まり）  Animation final segment (not included within range. zero-indexed)
         double m_fpf; // ゲームの1フレームあたりのアニメーションのフレーム数  Frames of animation per frame of game
 
         public:
         // コンストラクタ  Constructor
-        Picture(pictures::Textures* textures, std::string path, common::Vec2 xy);
-        Picture(pictures::TextTextures* text_textures, std::string path, std::string text, uint16_t pt, common::Vec2 xy);
+        Picture(game::Game* game, pictures::Textures* textures, std::string path, common::Vec2 xy);
+        Picture(game::Game* game, pictures::TextTextures* text_textures, std::string path, std::string text, uint16_t pt, common::Vec2 xy);
         // デストラクタ  Destructor
         ~Picture();
         // ピクチャを画面に表示  Display picture on screen
         bool Display();
         // アニメーションを表示  Draw animation
-        bool Animation(int64_t start_game_frame, int64_t current_game_frame);   
+        bool Animation();   
 
         // ゲッター  Getter
         bool GetIsText() const {return m_is_text;}
         std::string GetPath() const {return m_path;}
         std::string GetText() const {return m_text;}
-        std::uint16_t GetPt() const {return m_pt;}
+        uint16_t GetPt() const {return m_pt;}
+        bool GetInAnimation() const {return m_in_animation;}
         // セッター  Setter
         void SetXY(common::Vec2 xy){m_xy = xy;}
         void SetPosition(uint8_t position){m_position = position;}
@@ -70,10 +74,12 @@ namespace pictures{
         void SetScale(common::Vec2 scale){m_scale = scale;}
         void SetAngle(double angle_rad){m_angle_rad = angle_rad;}
         void SetFlip(SDL_RendererFlip flip){m_flip = flip;}
+        void SetInAnimation(bool in_animation){m_in_animation = in_animation;}
+        void SetStartGameFrame(int64_t start_game_frame){m_start_game_frame = start_game_frame;}
         void SetAnimation(common::Vec2 num_of_segs, int32_t start_frame, int32_t last_frame, double fpf){
             m_num_of_segs = num_of_segs;
-            m_start_frame = start_frame;
-            m_last_frame = last_frame;
+            m_start_seg = start_frame;
+            m_last_seg = last_frame;
             m_fpf = fpf;
         }
         void SetRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a){
@@ -92,16 +98,10 @@ namespace pictures{
         LayerAndNo(pictures::Layer layer, int32_t no);
     };
 
-    struct AnimationOption{
-        pictures::Picture* picture;
-        bool in_animation;
-        int64_t start_game_frame;
-    };
-
     class Pictures{
         private:
         game::Game* m_game;
-        std::map<pictures::Layer, std::map<int32_t, pictures::AnimationOption>> m_pictures; // 表示するピクチャをレイヤーとレイヤー内の番号で管理する  Manage pictures to be displayed by layer and number in the layer
+        std::map<pictures::Layer, std::map<int32_t, pictures::Picture*>> m_pictures; // 表示するピクチャをレイヤーとレイヤー内の番号で管理する  Manage pictures to be displayed by layer and number in the layer
         pictures::Textures* m_textures;
         pictures::TextTextures* m_text_textures;
         bool changed; // 画面に変化がない場合にDisplayAll()が動かないようにするためのフラグ  Flag to prevent DisplayAll() from working if there is no change on the screen
@@ -127,47 +127,47 @@ namespace pictures{
         // セッター  Setter
         bool SetXY(pictures::LayerAndNo layer_and_no, common::Vec2 xy){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
-            m_pictures[layer_and_no.m_layer][layer_and_no.m_no].picture->SetXY(xy);
+            m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetXY(xy);
             return 0;
         }
         bool SetPosition(pictures::LayerAndNo layer_and_no, uint8_t position){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
-            m_pictures[layer_and_no.m_layer][layer_and_no.m_no].picture->SetPosition(position);
+            m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetPosition(position);
             return 0;
         }
         bool SetClipXYAndSize(pictures::LayerAndNo layer_and_no, common::Vec2 xy, common::Vec2 wh){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
-            m_pictures[layer_and_no.m_layer][layer_and_no.m_no].picture->SetClipXYAndSize(xy, wh);
+            m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetClipXYAndSize(xy, wh);
             return 0;
         }
         bool SetClipEdge(pictures::LayerAndNo layer_and_no, int32_t right, int32_t bottom, int32_t left, int32_t top){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
-            m_pictures[layer_and_no.m_layer][layer_and_no.m_no].picture->SetClipEdge(right, bottom, left, top);
+            m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetClipEdge(right, bottom, left, top);
             return 0;
         }
         bool SetScale(pictures::LayerAndNo layer_and_no, common::Vec2 scale){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
-            m_pictures[layer_and_no.m_layer][layer_and_no.m_no].picture->SetScale(scale);
+            m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetScale(scale);
             return 0;
         }
         bool SetAngle(pictures::LayerAndNo layer_and_no, double angle_rad){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
-            m_pictures[layer_and_no.m_layer][layer_and_no.m_no].picture->SetAngle(angle_rad);
+            m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetAngle(angle_rad);
             return 0;
         }
         bool SetFlip(pictures::LayerAndNo layer_and_no, SDL_RendererFlip flip){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
-            m_pictures[layer_and_no.m_layer][layer_and_no.m_no].picture->SetFlip(flip);
+            m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetFlip(flip);
             return 0;
         }
         bool SetAnimation(pictures::LayerAndNo layer_and_no, common::Vec2 num_of_segs, int32_t start_frame, int32_t last_frame, double fpf){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
-            m_pictures[layer_and_no.m_layer][layer_and_no.m_no].picture->SetAnimation(num_of_segs, start_frame, last_frame, fpf);
+            m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetAnimation(num_of_segs, start_frame, last_frame, fpf);
             return 0;
         }
         bool SetRGBA(pictures::LayerAndNo layer_and_no, uint8_t r, uint8_t g, uint8_t b, uint8_t a){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
-            m_pictures[layer_and_no.m_layer][layer_and_no.m_no].picture->SetRGBA(r, g, b, a);
+            m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetRGBA(r, g, b, a);
             return 0;
         }
     };

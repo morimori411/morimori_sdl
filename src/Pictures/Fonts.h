@@ -22,8 +22,8 @@ namespace pictures{
         bool Free(std::string path);
 
         // ゲッター  Getter
-        std::map<std::string, TTF_Font*> GetFonts(){return m_fonts;}
-        TTF_Font* GetFont(std::string path){return m_fonts[path];}
+        std::map<std::string, TTF_Font*> GetFonts() const {return m_fonts;}
+        TTF_Font* GetFont(std::string path) {return m_fonts[path];}
         // セッター  Setter
         bool SetPt(std::string path, uint16_t pt){
             int failed;
