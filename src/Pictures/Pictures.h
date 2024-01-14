@@ -90,12 +90,12 @@ namespace pictures{
         }
     };
 
-    struct LayerAndNo{
+    struct LayerNo{
         pictures::Layer m_layer;
         int32_t m_no;
 
-        LayerAndNo();
-        LayerAndNo(pictures::Layer layer, int32_t no);
+        LayerNo();
+        LayerNo(pictures::Layer layer, int32_t no);
     };
 
     class Pictures{
@@ -112,60 +112,60 @@ namespace pictures{
         // デストラクタ  Destructor
         ~Pictures();
         // 表示するピクチャを追加する  Add picture on display
-        bool Add(pictures::LayerAndNo layer_and_no, std::string path, common::Vec2 xy);
+        bool Add(pictures::LayerNo layer_and_no, std::string path, common::Vec2 xy);
         // 表示するテキストを追加する  Add text on display
-        bool Add(pictures::LayerAndNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2 xy);
+        bool Add(pictures::LayerNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2 xy);
         // ピクチャを削除  Delete a picture
-        bool Delete(pictures::LayerAndNo layer_and_no);
+        bool Delete(pictures::LayerNo layer_and_no);
         // 指定したピクチャのアニメーションを開始  Starts animation of the specified picture
-        void StartAnimation(pictures::LayerAndNo layer_and_no);
+        void StartAnimation(pictures::LayerNo layer_and_no);
         // 指定したピクチャのアニメーションを終了  Stop animation of the specified picture
-        void StopAnimation(pictures::LayerAndNo layer_and_no);
+        void StopAnimation(pictures::LayerNo layer_and_no);
         // 全てのピクチャを表示 毎フレームの最後に呼び出す  Displays all pictures. Called at the end of every frame.
         bool DisplayAll();
 
         // セッター  Setter
-        bool SetXY(pictures::LayerAndNo layer_and_no, common::Vec2 xy){
+        bool SetXY(pictures::LayerNo layer_and_no, common::Vec2 xy){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetXY(xy);
             return 0;
         }
-        bool SetPosition(pictures::LayerAndNo layer_and_no, uint8_t position){
+        bool SetPosition(pictures::LayerNo layer_and_no, uint8_t position){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetPosition(position);
             return 0;
         }
-        bool SetClipXYAndSize(pictures::LayerAndNo layer_and_no, common::Vec2 xy, common::Vec2 wh){
+        bool SetClipXYAndSize(pictures::LayerNo layer_and_no, common::Vec2 xy, common::Vec2 wh){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetClipXYAndSize(xy, wh);
             return 0;
         }
-        bool SetClipEdge(pictures::LayerAndNo layer_and_no, int32_t right, int32_t bottom, int32_t left, int32_t top){
+        bool SetClipEdge(pictures::LayerNo layer_and_no, int32_t right, int32_t bottom, int32_t left, int32_t top){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetClipEdge(right, bottom, left, top);
             return 0;
         }
-        bool SetScale(pictures::LayerAndNo layer_and_no, common::Vec2 scale){
+        bool SetScale(pictures::LayerNo layer_and_no, common::Vec2 scale){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetScale(scale);
             return 0;
         }
-        bool SetAngle(pictures::LayerAndNo layer_and_no, double angle_rad){
+        bool SetAngle(pictures::LayerNo layer_and_no, double angle_rad){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetAngle(angle_rad);
             return 0;
         }
-        bool SetFlip(pictures::LayerAndNo layer_and_no, SDL_RendererFlip flip){
+        bool SetFlip(pictures::LayerNo layer_and_no, SDL_RendererFlip flip){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetFlip(flip);
             return 0;
         }
-        bool SetAnimation(pictures::LayerAndNo layer_and_no, common::Vec2 num_of_segs, int32_t start_frame, int32_t last_frame, double fpf){
+        bool SetAnimation(pictures::LayerNo layer_and_no, common::Vec2 num_of_segs, int32_t start_frame, int32_t last_frame, double fpf){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetAnimation(num_of_segs, start_frame, last_frame, fpf);
             return 0;
         }
-        bool SetRGBA(pictures::LayerAndNo layer_and_no, uint8_t r, uint8_t g, uint8_t b, uint8_t a){
+        bool SetRGBA(pictures::LayerNo layer_and_no, uint8_t r, uint8_t g, uint8_t b, uint8_t a){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetRGBA(r, g, b, a);
             return 0;

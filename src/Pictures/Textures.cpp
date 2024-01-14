@@ -143,7 +143,7 @@ bool pictures::TextTextures::Create(std::string path, std::string text, uint16_t
     }
     // 指定したサーフェスを生成  Create a specified surface
     SDL_Color fg = {255, 255, 255, 255};
-    SDL_Surface* loaded_surface = TTF_RenderUTF8_Solid_Wrapped(m_fonts->GetFont(path), text.c_str(), fg, 0);
+    SDL_Surface* loaded_surface = TTF_RenderUTF8_Blended_Wrapped(m_fonts->GetFont(path), text.c_str(), fg, 0);
     if(loaded_surface == nullptr){
         SDL_Log("In pictures::TextTextures::Create(): Texture could not be created! Path: %s Text: %s Pt: %d SDL Error: %s", path.c_str(), text.c_str(), pt, SDL_GetError());
         return 1;
