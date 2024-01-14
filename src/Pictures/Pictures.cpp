@@ -112,9 +112,9 @@ bool pictures::Picture::Animation(int64_t start_game_frame, int64_t current_game
     return 0;
 }
 
-pictures::LayerAndNo::LayerAndNo(){}
+pictures::LayerNo::LayerNo(){}
 
-pictures::LayerAndNo::LayerAndNo(pictures::Layer layer, int32_t no)
+pictures::LayerNo::LayerNo(pictures::Layer layer, int32_t no)
 :m_layer(layer)
 ,m_no(no)
 {
@@ -137,7 +137,7 @@ pictures::Pictures::~Pictures(){
     }
 }
 
-bool pictures::Pictures::Add(pictures::LayerAndNo layer_and_no, std::string path, common::Vec2 xy){
+bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, common::Vec2 xy){
     pictures::Layer layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合
@@ -153,7 +153,7 @@ bool pictures::Pictures::Add(pictures::LayerAndNo layer_and_no, std::string path
     return 0;
 }
 
-bool pictures::Pictures::Add(pictures::LayerAndNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2 xy){
+bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2 xy){
     pictures::Layer layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合
@@ -177,7 +177,7 @@ bool pictures::Pictures::Add(pictures::LayerAndNo layer_and_no, std::string path
     return 0;
 }
 
-bool pictures::Pictures::Delete(pictures::LayerAndNo layer_and_no){
+bool pictures::Pictures::Delete(pictures::LayerNo layer_and_no){
     bool failed;
     pictures::Layer layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
@@ -211,14 +211,14 @@ bool pictures::Pictures::Delete(pictures::LayerAndNo layer_and_no){
     return 0;
 }
 
-void pictures::Pictures::StartAnimation(pictures::LayerAndNo layer_and_no){
+void pictures::Pictures::StartAnimation(pictures::LayerNo layer_and_no){
     pictures::Layer layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     m_pictures[layer][no].in_animation = true;
     m_pictures[layer][no].start_game_frame = m_game->GetFrames();
 }
 
-void pictures::Pictures::StopAnimation(pictures::LayerAndNo layer_and_no){
+void pictures::Pictures::StopAnimation(pictures::LayerNo layer_and_no){
     pictures::Layer layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     m_pictures[layer][no].in_animation = false;

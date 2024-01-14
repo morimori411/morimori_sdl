@@ -12,17 +12,17 @@ int main(int argc, char* argv[]){
     textures->LoadFile("data/images/aoi.jpg");
     textures->LoadFile("data/images/allow2.png");
     fonts->LoadFont("data/fonts/MPLUS1Code-Regular.ttf");
-    std::vector<pictures::LayerAndNo> allows(9);
+    std::vector<pictures::LayerNo> allows(9);
     for(int i = 0; i < 9; i++){
         allows[i].m_layer = pictures::FRONT;
         allows[i].m_no = i + 10;
         pictures->Add(allows[i], "data/images/allow2.png", {90, 90});
         pictures->SetPosition(allows[i], i + 1);
     }
-    pictures::LayerAndNo aoi1(pictures::BACK, 0);
-    pictures::LayerAndNo aoi2(pictures::FRONT, 0);
-    pictures::LayerAndNo text1(pictures::FRONT, 1);
-    pictures::LayerAndNo text2(pictures::FRONT, 2);
+    pictures::LayerNo aoi1(pictures::BACK, 0);
+    pictures::LayerNo aoi2(pictures::FRONT, 0);
+    pictures::LayerNo text1(pictures::FRONT, 1);
+    pictures::LayerNo text2(pictures::FRONT, 2);
     pictures->Add(aoi1, "data/images/aoi.jpg", {100, 100});
     pictures->Add(aoi2, "data/images/aoi.jpg", {200, 200});
     pictures->Add(text1, "data/fonts/MPLUS1Code-Regular.ttf", "Hello World!", 40, {300, 300});
