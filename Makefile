@@ -1,2 +1,0 @@
-all:
-	g++ -std=c++20 -mwindows -I C:/Users/mori3/Documents/SDL/SDL2/include/SDL2 -I C:/Users/mori3/Documents/SDL/SDL2_image/include/SDL2 -I C:/Users/mori3/Documents/SDL/SDL2_ttf/include/SDL2 -L C:/Users/mori3/Documents/SDL/SDL2/lib -L C:/Users/mori3/Documents/SDL/SDL2_image/lib -L C:/Users/mori3/Documents/SDL/SDL2_ttf/lib -o game src/Main.cpp src/Game.cpp src/Common/Vector.cpp src/Pictures/Fonts.cpp src/Pictures/Textures.cpp src/Pictures/Pictures.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf

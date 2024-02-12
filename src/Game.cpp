@@ -1,7 +1,13 @@
 #include "Game.h"
 
-game::Game::Game()
-:m_window(nullptr)
+game::Game::Game(std::string title, uint32_t flags_sdl_init, uint32_t flags_img_init, uint32_t window_flags, uint32_t renderer_flags, uint16_t fps)
+:m_game_title(title)
+,m_flags_sdl_init(flags_sdl_init)
+,m_flags_img_init(flags_img_init)
+,m_window_flags(window_flags)
+,m_renderer_flags(renderer_flags)
+,m_fps(fps)
+,m_window(nullptr)
 ,m_renderer(nullptr)
 ,m_ticks(0)
 ,m_frames(0)
@@ -13,13 +19,13 @@ bool game::Game::Initialize(){
     bool failed;
 
     // SDLライブラリの初期化  Initialization of SDL
-    failed = SDL_Init(FLAGS_OF_SDL_INIT);
+    failed = SDL_Init(m_flags_sdl_init);
     if(failed){
         SDL_Log("In game::Game::Initialize(): SDL could not be initialized! SDL Error: %s", SDL_GetError());
         return 1;
     }
     // SDL_imageライブラリの初期化  Initialization of SDL_image
-    failed = !IMG_Init(FLAGS_OF_IMG_INIT);
+    failed = !IMG_Init(m_flags_img_init);
     if(failed){
         SDL_Log("In game::Game::Initialize(): SDL_image could not be initialized! SDL Error: %s", SDL_GetError());
         return 1;
@@ -32,31 +38,27 @@ bool game::Game::Initialize(){
     }
     // ウィンドウを生成  Create window
     m_window = SDL_CreateWindow(
-        game::GAME_TITLE.c_str(), // title
+        m_game_title.c_str(), // title
         SDL_WINDOWPOS_CENTERED, // x
         SDL_WINDOWPOS_CENTERED, // y
-        game::WINDOW_WIDTH * game::RENDER_SCALE, // w
-        game::WINDOW_HEIGHT * game::RENDER_SCALE, // h
-        game::WINDOW_FLAGS // flags
+        0, // w
+        0, // h
+        m_window_flags // flags
     );
     if(!m_window){
         SDL_Log("In game::Game::Initialize(): Window could not be created! SDL Error: %s", SDL_GetError());
         return 1;
     }
+    SDL_GetWindowSize(m_window, &m_window_width, &m_window_height);
     // レンダラーを生成  Create renderer
     m_renderer = SDL_CreateRenderer(
         m_window, // window
         -1, // index
-        game::RENDERER_FLAGS // flags
+        m_renderer_flags // flags
     );
     if(!m_renderer){
         SDL_Log("In game::Game::Initialize(): Renderer could not be created! SDL Error: %s", SDL_GetError());
         return 1;
-    }
-    // レンダースケールを設定  Set render scale
-    failed = SDL_RenderSetScale(m_renderer, game::RENDER_SCALE, game::RENDER_SCALE);
-    if(failed){
-        SDL_Log("In game::Game::Initialize(): Render scale could not be set! SDL Error: %s", SDL_GetError());
     }
 
     return 0;
@@ -77,7 +79,7 @@ void game::Game::Shutdown(){
 
 void game::Game::Wait(){
     // Standby for game fps
-    while(!SDL_TICKS_PASSED(SDL_GetTicks64(), m_ticks + 1000 / FPS));
+    while(!SDL_TICKS_PASSED(SDL_GetTicks64(), m_ticks + 1000 / m_fps));
     m_ticks = SDL_GetTicks64();
     m_frames++;
 }

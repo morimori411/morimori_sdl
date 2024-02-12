@@ -8,14 +8,9 @@
 #include "../Common/Vector.h"
 #include "Fonts.h"
 #include "Textures.h"
+#include "Camera.h"
 
 namespace pictures{
-    // ピクチャの表示レイヤ 後ろにあるほど画面の前面に近い  The display layer of the picture. The further back it is, the closer it is to the front of the screen.
-    enum Layer{
-        BACK,
-        FRONT
-    };
-
     class Picture{
         private:
         game::Game *m_game;
@@ -32,6 +27,7 @@ namespace pictures{
         double m_angle_rad; // ピクチャの回転角度[rad]  Picture rotation angle[rad]
         SDL_RendererFlip m_flip; // ピクチャの縦横反転  Flip picture horizontally and vertically
         SDL_Color m_color; // 色調補正  Color modulation
+        bool m_is_camera_target; // Whether the camera control is affected or not
         bool m_in_animation; // アニメーション中かどうか  Whether animation is in progress or not
         int64_t m_start_game_frame; // アニメーションのゲーム起動から数えた開始フレーム  Start frame of animation counted from game startup.
         common::Vec2 m_num_of_segs; // ピクチャの分割数（アニメーション用）  Number of segmentation of picture (for animation) 
@@ -55,6 +51,9 @@ namespace pictures{
         std::string GetPath() const {return m_path;}
         std::string GetText() const {return m_text;}
         uint16_t GetPt() const {return m_pt;}
+        common::Vec2 GetXY() const {return m_xy;}
+        common::Vec2 GetScale() const {return m_scale;}
+        bool GetIsCameraTarget() const {return m_is_camera_target;}
         bool GetInAnimation() const {return m_in_animation;}
         // セッター  Setter
         void SetXY(common::Vec2 xy){m_xy = xy;}
@@ -76,6 +75,7 @@ namespace pictures{
         void SetFlip(SDL_RendererFlip flip){m_flip = flip;}
         void SetInAnimation(bool in_animation){m_in_animation = in_animation;}
         void SetStartGameFrame(int64_t start_game_frame){m_start_game_frame = start_game_frame;}
+        void SetIsCameraTarget(bool is_camera_target){m_is_camera_target = is_camera_target;}
         void SetAnimation(common::Vec2 num_of_segs, int32_t start_frame, int32_t last_frame, double fpf){
             m_num_of_segs = num_of_segs;
             m_start_seg = start_frame;
@@ -91,24 +91,25 @@ namespace pictures{
     };
 
     struct LayerNo{
-        pictures::Layer m_layer;
+        int32_t m_layer;
         int32_t m_no;
 
         LayerNo();
-        LayerNo(pictures::Layer layer, int32_t no);
+        LayerNo(int32_t layer, int32_t no);
     };
 
     class Pictures{
         private:
         game::Game* m_game;
-        std::map<pictures::Layer, std::map<int32_t, pictures::Picture*>> m_pictures; // 表示するピクチャをレイヤーとレイヤー内の番号で管理する  Manage pictures to be displayed by layer and number in the layer
+        std::map<int32_t, std::map<int32_t, pictures::Picture*>> m_pictures; // 表示するピクチャをレイヤーとレイヤー内の番号で管理する  Manage pictures to be displayed by layer and number in the layer
         pictures::Textures* m_textures;
         pictures::TextTextures* m_text_textures;
+        pictures::Camera* m_camera;
         bool changed; // 画面に変化がない場合にDisplayAll()が動かないようにするためのフラグ  Flag to prevent DisplayAll() from working if there is no change on the screen
         
         public:
         // コンストラクタ  Constructor
-        Pictures(game::Game* game, pictures::Textures* textures, pictures::TextTextures* text_textures);
+        Pictures(game::Game* game, pictures::Textures* textures, pictures::TextTextures* text_textures, pictures::Camera* camera);
         // デストラクタ  Destructor
         ~Pictures();
         // 表示するピクチャを追加する  Add picture on display
@@ -158,6 +159,11 @@ namespace pictures{
         bool SetFlip(pictures::LayerNo layer_and_no, SDL_RendererFlip flip){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetFlip(flip);
+            return 0;
+        }
+        bool SetIsCameraTarget(pictures::LayerNo layer_and_no, bool is_camera_target){
+            if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
+            m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetIsCameraTarget(is_camera_target);
             return 0;
         }
         bool SetAnimation(pictures::LayerNo layer_and_no, common::Vec2 num_of_segs, int32_t start_frame, int32_t last_frame, double fpf){

@@ -1,5 +1,8 @@
 *.exe
 *.dll
-*.txt
-data/
 .vscode/
+build/
+CMakeFiles/
+*.cmake
+*.a
+Makefile

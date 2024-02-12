@@ -11,6 +11,7 @@ pictures::Picture::Picture(game::Game* game, pictures::Textures* textures, std::
 ,m_angle_rad(0.0)
 ,m_flip(SDL_FLIP_NONE)
 ,m_num_of_segs(1, 1)
+,m_is_camera_target(false)
 ,m_in_animation(false)
 ,m_start_seg(0)
 ,m_last_seg(0)
@@ -119,16 +120,17 @@ bool pictures::Picture::Animation(){
 
 pictures::LayerNo::LayerNo(){}
 
-pictures::LayerNo::LayerNo(pictures::Layer layer, int32_t no)
+pictures::LayerNo::LayerNo(int32_t layer, int32_t no)
 :m_layer(layer)
 ,m_no(no)
 {
 }
 
-pictures::Pictures::Pictures(game::Game* game, pictures::Textures* textures, pictures::TextTextures* text_textures)
+pictures::Pictures::Pictures(game::Game* game, pictures::Textures* textures, pictures::TextTextures* text_textures, pictures::Camera* camera)
 :m_game(game)
 ,m_textures(textures)
 ,m_text_textures(text_textures)
+,m_camera(camera)
 ,changed(false)
 {
 }
@@ -143,7 +145,7 @@ pictures::Pictures::~Pictures(){
 }
 
 bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, common::Vec2 xy){
-    pictures::Layer layer = layer_and_no.m_layer;
+    int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合
     if(m_pictures[layer].count(no)){
@@ -157,7 +159,7 @@ bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, c
 }
 
 bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2 xy){
-    pictures::Layer layer = layer_and_no.m_layer;
+    int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合
     if(m_pictures[layer].count(no)){
@@ -180,7 +182,7 @@ bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, s
 
 bool pictures::Pictures::Delete(pictures::LayerNo layer_and_no){
     bool failed;
-    pictures::Layer layer = layer_and_no.m_layer;
+    int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが存在しない場合
     if(!m_pictures[layer].count(no)){
@@ -213,14 +215,14 @@ bool pictures::Pictures::Delete(pictures::LayerNo layer_and_no){
 }
 
 void pictures::Pictures::StartAnimation(pictures::LayerNo layer_and_no){
-    pictures::Layer layer = layer_and_no.m_layer;
+    int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     m_pictures[layer][no]->SetInAnimation(true);
     m_pictures[layer][no]->SetStartGameFrame(m_game->GetFrames());
 }
 
 void pictures::Pictures::StopAnimation(pictures::LayerNo layer_and_no){
-    pictures::Layer layer = layer_and_no.m_layer;
+    int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     m_pictures[layer][no]->SetInAnimation(false);
 }
@@ -231,6 +233,14 @@ bool pictures::Pictures::DisplayAll(){
     // 全てのピクチャを表示  Display all pictures
     for(auto itr1 = m_pictures.begin(); itr1 != m_pictures.end(); itr1++){
         for(auto itr2 = itr1->second.begin(); itr2 != itr1->second.end(); itr2++){
+            pictures::Picture* picture = itr2->second;
+            common::Vec2 old_xy = picture->GetXY();
+            common::Vec2 old_scale = picture->GetScale();
+            // カメラに応じて表示座標とサイズを調整  Adjust display coordinates and size according to camera
+            if(picture->GetIsCameraTarget()){
+                picture->SetXY((picture->GetXY() - m_camera->GetXY()) * m_camera->GetZoom());
+                picture->SetScale(picture->GetScale() * m_camera->GetZoom());
+            }
             // アニメーション中の時  When in animation
             if(itr2->second->GetInAnimation()){
                 failed = itr2->second->Animation();
@@ -245,6 +255,11 @@ bool pictures::Pictures::DisplayAll(){
                     SDL_Log("In pictures::Pictures::DisplayAll(): Pictures could not be displayed!");
                     return 1;
                 }
+            }
+            // カメラに応じて調整した表示座標とサイズを元に戻す  Restore display coordinates and size adjusted according to camera
+            if(picture->GetIsCameraTarget()){
+                picture->SetXY(old_xy);
+                picture->SetScale(old_scale);
             }
         }
     }
