@@ -21,24 +21,24 @@ namespace pictures{
         std::string m_text; // (テキストのみ)表示テキスト  // (Only text) Display text
         uint16_t m_pt; // (テキストのみ)テキストのサイズ  // (Only text) Text size
         SDL_Rect* m_srcrct; // SDL_RenderCopy source rect
-        common::Vec2 m_xy; // ピクチャの座標  Picture coordinates
+        common::Vec2<double> m_xy; // ピクチャの座標  Picture coordinates
         uint8_t m_position; // ピクチャの表示を合わせる位置  Position to align the picture display
-        common::Vec2 m_scale; // 表示スケール  Display scale
+        common::Vec2<double> m_scale; // 表示スケール  Display scale
         double m_angle_rad; // ピクチャの回転角度[rad]  Picture rotation angle[rad]
         SDL_RendererFlip m_flip; // ピクチャの縦横反転  Flip picture horizontally and vertically
         SDL_Color m_color; // 色調補正  Color modulation
         bool m_is_camera_target; // Whether the camera control is affected or not
         bool m_in_animation; // アニメーション中かどうか  Whether animation is in progress or not
         int64_t m_start_game_frame; // アニメーションのゲーム起動から数えた開始フレーム  Start frame of animation counted from game startup.
-        common::Vec2 m_num_of_segs; // ピクチャの分割数（アニメーション用）  Number of segmentation of picture (for animation) 
+        common::Vec2<int32_t> m_num_of_segs; // ピクチャの分割数（アニメーション用）  Number of segmentation of picture (for animation) 
         int32_t m_start_seg; // アニメーションの開始区画（範囲に含まれる 0始まり）  Animation start segment (included within range. zero-indexed)
         int32_t m_last_seg; // アニメーションの終了区画（範囲に含まれない 0始まり）  Animation final segment (not included within range. zero-indexed)
         double m_fpf; // ゲームの1フレームあたりのアニメーションのフレーム数  Frames of animation per frame of game
 
         public:
         // コンストラクタ  Constructor
-        Picture(game::Game* game, pictures::Textures* textures, std::string path, common::Vec2 xy);
-        Picture(game::Game* game, pictures::TextTextures* text_textures, std::string path, std::string text, uint16_t pt, common::Vec2 xy);
+        Picture(game::Game* game, pictures::Textures* textures, std::string path, common::Vec2<double> xy);
+        Picture(game::Game* game, pictures::TextTextures* text_textures, std::string path, std::string text, uint16_t pt, common::Vec2<double> xy);
         // デストラクタ  Destructor
         ~Picture();
         // ピクチャを画面に表示  Display picture on screen
@@ -51,14 +51,14 @@ namespace pictures{
         std::string GetPath() const {return m_path;}
         std::string GetText() const {return m_text;}
         uint16_t GetPt() const {return m_pt;}
-        common::Vec2 GetXY() const {return m_xy;}
-        common::Vec2 GetScale() const {return m_scale;}
+        common::Vec2<double> GetXY() const {return m_xy;}
+        common::Vec2<double> GetScale() const {return m_scale;}
         bool GetIsCameraTarget() const {return m_is_camera_target;}
         bool GetInAnimation() const {return m_in_animation;}
         // セッター  Setter
-        void SetXY(common::Vec2 xy){m_xy = xy;}
+        void SetXY(common::Vec2<double> xy){m_xy = xy;}
         void SetPosition(uint8_t position){m_position = position;}
-        void SetClipXYAndSize(common::Vec2 xy, common::Vec2 wh){
+        void SetClipXYAndSize(common::Vec2<int32_t> xy, common::Vec2<int32_t> wh){
             m_srcrct->x = xy.m_x;
             m_srcrct->y = xy.m_y;
             m_srcrct->w = wh.m_x;
@@ -70,13 +70,13 @@ namespace pictures{
             m_srcrct->w = right - left;
             m_srcrct->h = bottom - top;
         }
-        void SetScale(common::Vec2 scale){m_scale = scale;}
+        void SetScale(common::Vec2<double> scale){m_scale = scale;}
         void SetAngle(double angle_rad){m_angle_rad = angle_rad;}
         void SetFlip(SDL_RendererFlip flip){m_flip = flip;}
         void SetInAnimation(bool in_animation){m_in_animation = in_animation;}
         void SetStartGameFrame(int64_t start_game_frame){m_start_game_frame = start_game_frame;}
         void SetIsCameraTarget(bool is_camera_target){m_is_camera_target = is_camera_target;}
-        void SetAnimation(common::Vec2 num_of_segs, int32_t start_frame, int32_t last_frame, double fpf){
+        void SetAnimation(common::Vec2<int32_t> num_of_segs, int32_t start_frame, int32_t last_frame, double fpf){
             m_num_of_segs = num_of_segs;
             m_start_seg = start_frame;
             m_last_seg = last_frame;
@@ -113,9 +113,9 @@ namespace pictures{
         // デストラクタ  Destructor
         ~Pictures();
         // 表示するピクチャを追加する  Add picture on display
-        bool Add(pictures::LayerNo layer_and_no, std::string path, common::Vec2 xy);
+        bool Add(pictures::LayerNo layer_and_no, std::string path, common::Vec2<double> xy);
         // 表示するテキストを追加する  Add text on display
-        bool Add(pictures::LayerNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2 xy);
+        bool Add(pictures::LayerNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2<double> xy);
         // ピクチャを削除  Delete a picture
         bool Delete(pictures::LayerNo layer_and_no);
         // 指定したピクチャのアニメーションを開始  Starts animation of the specified picture
@@ -125,8 +125,11 @@ namespace pictures{
         // 全てのピクチャを表示 毎フレームの最後に呼び出す  Displays all pictures. Called at the end of every frame.
         bool DisplayAll();
 
+        // ゲッター  Getter
+        pictures::Textures* GetTextures() const {return m_textures;}
+        pictures::TextTextures* GetTextTextures() const {return m_text_textures;}
         // セッター  Setter
-        bool SetXY(pictures::LayerNo layer_and_no, common::Vec2 xy){
+        bool SetXY(pictures::LayerNo layer_and_no, common::Vec2<double> xy){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetXY(xy);
             return 0;
@@ -136,7 +139,7 @@ namespace pictures{
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetPosition(position);
             return 0;
         }
-        bool SetClipXYAndSize(pictures::LayerNo layer_and_no, common::Vec2 xy, common::Vec2 wh){
+        bool SetClipXYAndSize(pictures::LayerNo layer_and_no, common::Vec2<int32_t> xy, common::Vec2<int32_t> wh){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetClipXYAndSize(xy, wh);
             return 0;
@@ -146,7 +149,7 @@ namespace pictures{
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetClipEdge(right, bottom, left, top);
             return 0;
         }
-        bool SetScale(pictures::LayerNo layer_and_no, common::Vec2 scale){
+        bool SetScale(pictures::LayerNo layer_and_no, common::Vec2<double> scale){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetScale(scale);
             return 0;
@@ -166,7 +169,7 @@ namespace pictures{
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetIsCameraTarget(is_camera_target);
             return 0;
         }
-        bool SetAnimation(pictures::LayerNo layer_and_no, common::Vec2 num_of_segs, int32_t start_frame, int32_t last_frame, double fpf){
+        bool SetAnimation(pictures::LayerNo layer_and_no, common::Vec2<int32_t> num_of_segs, int32_t start_frame, int32_t last_frame, double fpf){
             if(!m_pictures[layer_and_no.m_layer].count(layer_and_no.m_no)) return 1;
             m_pictures[layer_and_no.m_layer][layer_and_no.m_no]->SetAnimation(num_of_segs, start_frame, last_frame, fpf);
             return 0;

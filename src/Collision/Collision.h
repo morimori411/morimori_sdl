@@ -36,9 +36,9 @@ namespace collision{
     // 矩形同士の当たり判定
     bool isInCollision(Rectangle* rectangle1, Rectangle* rectangle2);
     // 矩形と円形の当たり判定 第1引数から第2引数への力積の角度[rad]を返す 当たっていない場合-1
-    float isInCollision(Rectangle* rectangle, Circle* circle);
+    double isInCollision(Rectangle* rectangle, Circle* circle);
     // 円形と矩形の当たり判定 第2引数から第1引数への力積の角度[rad]を返す 当たっていない場合-1
-    float isInCollision(Circle* circle, Rectangle* rectangle);
+    double isInCollision(Circle* circle, Rectangle* rectangle);
     // 円形と円形の当たり判定 第2引数から第1引数への力積の角度[rad]を返す 当たっていない場合-1
-    float isInCollision(Circle* circle1, Circle* circle2);
+    double isInCollision(Circle* circle1, Circle* circle2);
 }

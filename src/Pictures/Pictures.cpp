@@ -1,6 +1,6 @@
 #include "Pictures.h"
 
-pictures::Picture::Picture(game::Game* game, pictures::Textures* textures, std::string path, common::Vec2 xy)
+pictures::Picture::Picture(game::Game* game, pictures::Textures* textures, std::string path, common::Vec2<double> xy)
 :m_game(game)
 ,m_textures(textures)
 ,m_is_text(false)
@@ -28,7 +28,7 @@ pictures::Picture::Picture(game::Game* game, pictures::Textures* textures, std::
     m_color.a = 255;
 }
 
-pictures::Picture::Picture(game::Game* game, pictures::TextTextures* text_textures, std::string path, std::string text, uint16_t pt, common::Vec2 xy)
+pictures::Picture::Picture(game::Game* game, pictures::TextTextures* text_textures, std::string path, std::string text, uint16_t pt, common::Vec2<double> xy)
 :m_game(game)
 ,m_text_textures(text_textures)
 ,m_is_text(true)
@@ -144,7 +144,7 @@ pictures::Pictures::~Pictures(){
     }
 }
 
-bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, common::Vec2 xy){
+bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, common::Vec2<double> xy){
     int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合
@@ -158,7 +158,7 @@ bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, c
     return 0;
 }
 
-bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2 xy){
+bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2<double> xy){
     int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合

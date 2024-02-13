@@ -49,7 +49,7 @@ bool game::Game::Initialize(){
         SDL_Log("In game::Game::Initialize(): Window could not be created! SDL Error: %s", SDL_GetError());
         return 1;
     }
-    SDL_GetWindowSize(m_window, &m_window_width, &m_window_height);
+    SDL_GetWindowSize(m_window, &m_window_size.m_x, &m_window_size.m_y);
     // レンダラーを生成  Create renderer
     m_renderer = SDL_CreateRenderer(
         m_window, // window

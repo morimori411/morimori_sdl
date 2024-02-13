@@ -30,10 +30,10 @@ namespace pictures{
     // SDL_textureとそのサイズを管理する構造体  Structure to manage SDL_Texture and sizes
     struct Texture{
         SDL_Texture* m_texture; // SDL_Textureのオブジェクト  SDL_Texture object
-        common::Vec2 m_size; // 画像ファイルのサイズ  Size of image file
+        common::Vec2<int32_t> m_size; // 画像ファイルのサイズ  Size of image file
 
         // コンストラクタ  Constructor
-        Texture(SDL_Texture* texture, common::Vec2 size);
+        Texture(SDL_Texture* texture, common::Vec2<int32_t> size);
         // デストラクタ  Destructor
         ~Texture();
     };
@@ -55,10 +55,10 @@ namespace pictures{
         // ファイルパスを指定して読み込んだ画像を開放  Free the loaded image by specifying the file path
         bool Free(std::string path);
         // ファイルパスを指定してテクスチャを描画  Draw texture by specifying the file path
-        bool Draw(std::string path, SDL_Rect* srcrct, common::Vec2 xy, uint8_t position, common::Vec2 scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color);
+        bool Draw(std::string path, SDL_Rect* srcrct, common::Vec2<double> xy, uint8_t position, common::Vec2<double> scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color);
 
         // ゲッター  Getter
-        common::Vec2 GetTextureSize(std::string path){
+        common::Vec2<int32_t> GetTextureSize(std::string path){
             // テクスチャのイテレータを取得  Get texture iterator 
             auto itr = m_textures.find(path);
             if(itr == m_textures.end()){
@@ -90,11 +90,11 @@ namespace pictures{
         // ファイルパス、テキスト、フォントサイズを指定してテクスチャを破棄
         bool Destroy(std::string path, std::string text, uint16_t pt);
         // ファイルパス、テキスト、フォントサイズを指定してテクスチャを描画
-        bool Draw(std::string path, std::string text, uint16_t pt, SDL_Rect* srcrct, common::Vec2 xy, uint8_t position, common::Vec2 scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color);
+        bool Draw(std::string path, std::string text, uint16_t pt, SDL_Rect* srcrct, common::Vec2<double> xy, uint8_t position, common::Vec2<double> scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color);
 
         // ゲッター  Getter
         std::map<std::string, std::map<std::string, std::map<uint16_t, pictures::Texture*>>> GetTextTextures(){return m_text_textures;}
-        common::Vec2 GetTextureSize(std::string path, std::string text, uint16_t pt){
+        common::Vec2<int32_t> GetTextureSize(std::string path, std::string text, uint16_t pt){
             // 指定したテクスチャが存在しない場合  When Specified texture does not exist 
             if(!m_text_textures[path][text].count(pt)){
                 // 生成する  Create

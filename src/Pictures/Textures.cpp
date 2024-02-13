@@ -1,6 +1,6 @@
 #include "Textures.h"
 
-pictures::Texture::Texture(SDL_Texture* texture, common::Vec2 size)
+pictures::Texture::Texture(SDL_Texture* texture, common::Vec2<int32_t> size)
 :m_texture(texture)
 ,m_size(size)
 {
@@ -63,7 +63,7 @@ bool pictures::Textures::Free(std::string path){
     return 0;
 }
 
-bool pictures::Textures::Draw(std::string path, SDL_Rect* srcrct, common::Vec2 xy, uint8_t position, common::Vec2 scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color){
+bool pictures::Textures::Draw(std::string path, SDL_Rect* srcrct, common::Vec2<double> xy, uint8_t position, common::Vec2<double> scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color){
     SDL_Rect dstrct; // SDL_RenderCopyEx dstrct
     dstrct.x = xy.m_x;
     dstrct.y = xy.m_y;
@@ -179,7 +179,7 @@ bool pictures::TextTextures::Destroy(std::string path, std::string text, uint16_
     return 0;
 }
 
-bool pictures::TextTextures::Draw(std::string path, std::string text, uint16_t pt, SDL_Rect* srcrct, common::Vec2 xy, uint8_t position, common::Vec2 scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color){
+bool pictures::TextTextures::Draw(std::string path, std::string text, uint16_t pt, SDL_Rect* srcrct, common::Vec2<double> xy, uint8_t position, common::Vec2<double> scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color){
     SDL_Rect dstrct; // SDL_RenderCopyEx dstrct
     dstrct.x = xy.m_x;
     dstrct.y = xy.m_y;

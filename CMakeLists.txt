@@ -3,7 +3,6 @@ project(morimori_sdl CXX)
 add_library(morimori_sdl
     src/Game.cpp
     src/Common/Common.cpp
-    src/Common/Vector.cpp
     src/Collision/Collision.cpp
     src/Pictures/Fonts.cpp
     src/Pictures/Textures.cpp
