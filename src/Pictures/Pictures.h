@@ -17,7 +17,7 @@ namespace pictures{
         pictures::Textures* m_textures;
         pictures::TextTextures* m_text_textures;
         bool m_is_text; // ピクチャが画像かテキストか  Whether the picture is an image or text
-        std::string m_path; // 画像ファイルのパス  Image file path
+        std::string m_path_or_nickname; // 画像ファイルのパスまたはニックネーム  Image file path or nickname
         std::string m_text; // (テキストのみ)表示テキスト  // (Only text) Display text
         uint16_t m_pt; // (テキストのみ)テキストのサイズ  // (Only text) Text size
         SDL_Rect* m_srcrct; // SDL_RenderCopy source rect
@@ -37,8 +37,8 @@ namespace pictures{
 
         public:
         // コンストラクタ  Constructor
-        Picture(game::Game* game, pictures::Textures* textures, std::string path, common::Vec2<double> xy);
-        Picture(game::Game* game, pictures::TextTextures* text_textures, std::string path, std::string text, uint16_t pt, common::Vec2<double> xy);
+        Picture(game::Game* game, pictures::Textures* textures, std::string path_or_nickname, common::Vec2<double> xy);
+        Picture(game::Game* game, pictures::TextTextures* text_textures, std::string path_or_nickname, std::string text, uint16_t pt, common::Vec2<double> xy);
         // デストラクタ  Destructor
         ~Picture();
         // ピクチャを画面に表示  Display picture on screen
@@ -48,7 +48,7 @@ namespace pictures{
 
         // ゲッター  Getter
         bool GetIsText() const {return m_is_text;}
-        std::string GetPath() const {return m_path;}
+        std::string GetPathOrNickname() const {return m_path_or_nickname;}
         std::string GetText() const {return m_text;}
         uint16_t GetPt() const {return m_pt;}
         common::Vec2<double> GetXY() const {return m_xy;}
@@ -113,9 +113,9 @@ namespace pictures{
         // デストラクタ  Destructor
         ~Pictures();
         // 表示するピクチャを追加する  Add picture on display
-        bool Add(pictures::LayerNo layer_and_no, std::string path, common::Vec2<double> xy);
+        bool Add(pictures::LayerNo layer_and_no, std::string path_or_nickname, common::Vec2<double> xy);
         // 表示するテキストを追加する  Add text on display
-        bool Add(pictures::LayerNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2<double> xy);
+        bool Add(pictures::LayerNo layer_and_no, std::string path_or_nickname, std::string text, uint16_t pt, common::Vec2<double> xy);
         // ピクチャを削除  Delete a picture
         bool Delete(pictures::LayerNo layer_and_no);
         // 指定したピクチャのアニメーションを開始  Starts animation of the specified picture

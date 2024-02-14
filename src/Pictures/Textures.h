@@ -44,6 +44,7 @@ namespace pictures{
         game::Game* m_game; // ゲームオブジェクト  Game object
         // 画像ファイルのパスとそのファイルから作られたテクスチャを管理するmap  A map that manages image file paths and the textures created from them
         std::map<std::string, pictures::Texture*> m_textures;
+        std::map<std::string, std::string> m_nickname_to_path; // ファイル名のニックネーム  File Nickname
 
         public:
         // コンストラクタ  Constructor
@@ -51,22 +52,28 @@ namespace pictures{
         // デストラクタ  Destructor
         ~Textures();
         // ファイルパスを指定して画像を読み込む  Load an image by specifying the file path
-        bool LoadFile(std::string path);
+        bool LoadFile(std::string path, std::string nickname);
         // ファイルパスを指定して読み込んだ画像を開放  Free the loaded image by specifying the file path
-        bool Free(std::string path);
+        bool Free(std::string path_or_nickname);
         // ファイルパスを指定してテクスチャを描画  Draw texture by specifying the file path
-        bool Draw(std::string path, SDL_Rect* srcrct, common::Vec2<double> xy, uint8_t position, common::Vec2<double> scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color);
+        bool Draw(std::string path_or_nickname, SDL_Rect* srcrct, common::Vec2<double> xy, uint8_t position, common::Vec2<double> scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color);
 
         // ゲッター  Getter
-        common::Vec2<int32_t> GetTextureSize(std::string path){
+        std::map<std::string, std::string> GetNicknameToPath() const {return m_nickname_to_path;}
+        common::Vec2<int32_t> GetTextureSize(std::string path_or_nickname){
+            // ニックネームに対応するファイルパスが存在するとき  When the file path matching the nickname exists
+            if(m_nickname_to_path.count(path_or_nickname)){
+                // ニックネームからファイルパスを取得  Get file path from nickname
+                path_or_nickname = m_nickname_to_path[path_or_nickname];
+            }
             // テクスチャのイテレータを取得  Get texture iterator 
-            auto itr = m_textures.find(path);
+            auto itr = m_textures.find(path_or_nickname);
             if(itr == m_textures.end()){
                 // 読み込む  Load
-                SDL_Log("Specified image was not loaded. Path: %s Now loading...", path.c_str());
-                LoadFile(path);
+                SDL_Log("Specified image was not loaded. Path: %s Now loading...", path_or_nickname.c_str());
+                LoadFile(path_or_nickname, path_or_nickname);
             }
-            return m_textures[path]->m_size;
+            return m_textures[path_or_nickname]->m_size;
         }
     };
 
@@ -86,41 +93,57 @@ namespace pictures{
         // デストラクタ  Destructor
         ~TextTextures();
         // ファイルパス、テキスト、フォントサイズを指定してフォントからテクスチャを生成する  Create a texture from a font by specifying the file path, text, and font size
-        bool Create(std::string path, std::string text, uint16_t pt);
+        bool Create(std::string path_or_nickname, std::string text, uint16_t pt);
         // ファイルパス、テキスト、フォントサイズを指定してテクスチャを破棄
-        bool Destroy(std::string path, std::string text, uint16_t pt);
+        bool Destroy(std::string path_or_nickname, std::string text, uint16_t pt);
         // ファイルパス、テキスト、フォントサイズを指定してテクスチャを描画
-        bool Draw(std::string path, std::string text, uint16_t pt, SDL_Rect* srcrct, common::Vec2<double> xy, uint8_t position, common::Vec2<double> scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color);
+        bool Draw(std::string path_or_nickname, std::string text, uint16_t pt, SDL_Rect* srcrct, common::Vec2<double> xy, uint8_t position, common::Vec2<double> scale, double angle_rad, SDL_RendererFlip flip, SDL_Color color);
 
         // ゲッター  Getter
+        pictures::Fonts* GetFonts() const {return m_fonts;}
         std::map<std::string, std::map<std::string, std::map<uint16_t, pictures::Texture*>>> GetTextTextures(){return m_text_textures;}
-        common::Vec2<int32_t> GetTextureSize(std::string path, std::string text, uint16_t pt){
+        common::Vec2<int32_t> GetTextureSize(std::string path_or_nickname, std::string text, uint16_t pt){
+            // ニックネームに対応するファイルパスが存在するとき  When the file path matching the nickname exists
+            if(m_fonts->GetNicknameToPath().count(path_or_nickname)){
+                // ニックネームからファイルパスを取得  Get file path from nickname
+                path_or_nickname = m_fonts->GetNicknameToPath()[path_or_nickname];
+            }
             // 指定したテクスチャが存在しない場合  When Specified texture does not exist 
-            if(!m_text_textures[path][text].count(pt)){
+            if(!m_text_textures[path_or_nickname][text].count(pt)){
                 // 生成する  Create
-                SDL_Log("In pictures::TextTextures::GetTextureSize: Specified texture was not loaded. Path: %s Text: %s Pt: %d Now loading...", path.c_str(), text.c_str(), pt);
-                Create(path, text, pt);
+                SDL_Log("In pictures::TextTextures::GetTextureSize: Specified texture was not loaded. Path: %s Text: %s Pt: %d Now loading...", path_or_nickname.c_str(), text.c_str(), pt);
+                Create(path_or_nickname, text, pt);
             }
-            return m_text_textures[path][text][pt]->m_size;
+            return m_text_textures[path_or_nickname][text][pt]->m_size;
         }
-        uint32_t GetNumOfPictures(std::string path, std::string text, uint16_t pt){
-            // 指定したテクスチャが存在しない場合
-            if(!m_text_textures[path][text].count(pt)){
-                // 生成する  Create
-                SDL_Log("In pictures::TextTextures::GetNumOfPictures: Specified texture was not loaded. Path: %s Text: %s Pt: %d Now loading...", path.c_str(), text.c_str(), pt);
-                Create(path, text, pt);
+        uint32_t GetNumOfPictures(std::string path_or_nickname, std::string text, uint16_t pt){
+            // ニックネームに対応するファイルパスが存在するとき  When the file path matching the nickname exists
+            if(m_fonts->GetNicknameToPath().count(path_or_nickname)){
+                // ニックネームからファイルパスを取得  Get file path from nickname
+                path_or_nickname = m_fonts->GetNicknameToPath()[path_or_nickname];
             }
-            return m_num_of_pictures[path][text][pt];
+            // 指定したテクスチャが存在しない場合
+            if(!m_text_textures[path_or_nickname][text].count(pt)){
+                // 生成する  Create
+                SDL_Log("In pictures::TextTextures::GetNumOfPictures: Specified texture was not loaded. Path: %s Text: %s Pt: %d Now loading...", path_or_nickname.c_str(), text.c_str(), pt);
+                Create(path_or_nickname, text, pt);
+            }
+            return m_num_of_pictures[path_or_nickname][text][pt];
         }
         // セッター  Setter
-        void SetNumOfPictures(std::string path, std::string text, uint16_t pt, uint32_t num_of_pictures){
-            // 指定したテクスチャが存在しない場合
-            if(!m_text_textures[path][text].count(pt)){
-                // 生成する  Create
-                SDL_Log("In pictures::TextTextures::SetNumOfPictures: Specified texture was not loaded. Path: %s Text: %s Pt: %d Now loading...", path.c_str(), text.c_str(), pt);
-                Create(path, text, pt);
+        void SetNumOfPictures(std::string path_or_nickname, std::string text, uint16_t pt, uint32_t num_of_pictures){
+            // ニックネームに対応するファイルパスが存在するとき  When the file path matching the nickname exists
+            if(m_fonts->GetNicknameToPath().count(path_or_nickname)){
+                // ニックネームからファイルパスを取得  Get file path from nickname
+                path_or_nickname = m_fonts->GetNicknameToPath()[path_or_nickname];
             }
-            m_num_of_pictures[path][text][pt] = num_of_pictures;
+            // 指定したテクスチャが存在しない場合
+            if(!m_text_textures[path_or_nickname][text].count(pt)){
+                // 生成する  Create
+                SDL_Log("In pictures::TextTextures::SetNumOfPictures: Specified texture was not loaded. Path: %s Text: %s Pt: %d Now loading...", path_or_nickname.c_str(), text.c_str(), pt);
+                Create(path_or_nickname, text, pt);
+            }
+            m_num_of_pictures[path_or_nickname][text][pt] = num_of_pictures;
         }
     };
 }

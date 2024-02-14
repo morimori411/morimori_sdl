@@ -1,10 +1,10 @@
 #include "Pictures.h"
 
-pictures::Picture::Picture(game::Game* game, pictures::Textures* textures, std::string path, common::Vec2<double> xy)
+pictures::Picture::Picture(game::Game* game, pictures::Textures* textures, std::string path_or_nickname, common::Vec2<double> xy)
 :m_game(game)
 ,m_textures(textures)
 ,m_is_text(false)
-,m_path(path)
+,m_path_or_nickname(path_or_nickname)
 ,m_xy(xy)
 ,m_position(TOP_LEFT)
 ,m_scale(1.0, 1.0)
@@ -20,19 +20,24 @@ pictures::Picture::Picture(game::Game* game, pictures::Textures* textures, std::
     m_srcrct = new SDL_Rect;
     m_srcrct->x = 0;
     m_srcrct->y = 0;
-    m_srcrct->w = m_textures->GetTextureSize(m_path).m_x;
-    m_srcrct->h = m_textures->GetTextureSize(m_path).m_y;
+    m_srcrct->w = m_textures->GetTextureSize(m_path_or_nickname).m_x;
+    m_srcrct->h = m_textures->GetTextureSize(m_path_or_nickname).m_y;
     m_color.r = 255;
     m_color.g = 255;
     m_color.b = 255;
     m_color.a = 255;
+    // ニックネームに対応するファイルパスが存在するとき  When the file path matching the nickname exists
+    if(m_textures->GetNicknameToPath().count(m_path_or_nickname)){
+        // ニックネームからファイルパスを取得  Get file path from nickname
+        m_path_or_nickname = m_textures->GetNicknameToPath()[m_path_or_nickname];
+    }
 }
 
-pictures::Picture::Picture(game::Game* game, pictures::TextTextures* text_textures, std::string path, std::string text, uint16_t pt, common::Vec2<double> xy)
+pictures::Picture::Picture(game::Game* game, pictures::TextTextures* text_textures, std::string path_or_nickname, std::string text, uint16_t pt, common::Vec2<double> xy)
 :m_game(game)
 ,m_text_textures(text_textures)
 ,m_is_text(true)
-,m_path(path)
+,m_path_or_nickname(path_or_nickname)
 ,m_text(text)
 ,m_pt(pt)
 ,m_xy(xy)
@@ -49,12 +54,17 @@ pictures::Picture::Picture(game::Game* game, pictures::TextTextures* text_textur
     m_srcrct = new SDL_Rect;
     m_srcrct->x = 0;
     m_srcrct->y = 0;
-    m_srcrct->w = m_text_textures->GetTextureSize(m_path, m_text, m_pt).m_x;
-    m_srcrct->h = m_text_textures->GetTextureSize(m_path, m_text, m_pt).m_y;
+    m_srcrct->w = m_text_textures->GetTextureSize(m_path_or_nickname, m_text, m_pt).m_x;
+    m_srcrct->h = m_text_textures->GetTextureSize(m_path_or_nickname, m_text, m_pt).m_y;
     m_color.r = 255;
     m_color.g = 255;
     m_color.b = 255;
     m_color.a = 255;
+    // ニックネームに対応するファイルパスが存在するとき  When the file path matching the nickname exists
+    if(m_text_textures->GetFonts()->GetNicknameToPath().count(m_path_or_nickname)){
+        // ニックネームからファイルパスを取得  Get file path from nickname
+        m_path_or_nickname = m_text_textures->GetFonts()->GetNicknameToPath()[m_path_or_nickname];
+    }
 }
 
 pictures::Picture::~Picture(){
@@ -65,16 +75,16 @@ bool pictures::Picture::Display(){
     bool failed;
     // テキストピクチャの場合
     if(m_is_text){
-        failed = m_text_textures->Draw(m_path, m_text, m_pt, m_srcrct, m_xy, m_position, m_scale, m_angle_rad, m_flip, m_color);
+        failed = m_text_textures->Draw(m_path_or_nickname, m_text, m_pt, m_srcrct, m_xy, m_position, m_scale, m_angle_rad, m_flip, m_color);
         if(failed){
-            SDL_Log("In pictures::Picture::Display(): Text could not be displayed! Path: %s Text: %s Pt: %d", m_path.c_str(), m_text.c_str(), m_pt);
+            SDL_Log("In pictures::Picture::Display(): Text could not be displayed! Path: %s Text: %s Pt: %d", m_path_or_nickname.c_str(), m_text.c_str(), m_pt);
             return 1;
         }
     // 画像ピクチャの場合   
     }else{
-        failed = m_textures->Draw(m_path, m_srcrct, m_xy, m_position, m_scale, m_angle_rad, m_flip, m_color);
+        failed = m_textures->Draw(m_path_or_nickname, m_srcrct, m_xy, m_position, m_scale, m_angle_rad, m_flip, m_color);
         if(failed){
-            SDL_Log("In pictures::Picture::Display(): Picture could not be displayed! Path: %s", m_path.c_str());
+            SDL_Log("In pictures::Picture::Display(): Picture could not be displayed! Path: %s", m_path_or_nickname.c_str());
             return 1;
         }
     }
@@ -99,18 +109,18 @@ bool pictures::Picture::Animation(){
     // srcrctを計算  Culculate the srcrct
     SDL_Rect* tmp_srcrct = m_srcrct;
     common::Vec2 xy(
-        m_textures->GetTextureSize(m_path).m_x / m_num_of_segs.m_x * frame_xy.m_x,
-        m_textures->GetTextureSize(m_path).m_y / m_num_of_segs.m_y * frame_xy.m_y
+        m_textures->GetTextureSize(m_path_or_nickname).m_x / m_num_of_segs.m_x * frame_xy.m_x,
+        m_textures->GetTextureSize(m_path_or_nickname).m_y / m_num_of_segs.m_y * frame_xy.m_y
     );
     common::Vec2 wh(
-        m_textures->GetTextureSize(m_path).m_x / m_num_of_segs.m_x,
-        m_textures->GetTextureSize(m_path).m_y / m_num_of_segs.m_y
+        m_textures->GetTextureSize(m_path_or_nickname).m_x / m_num_of_segs.m_x,
+        m_textures->GetTextureSize(m_path_or_nickname).m_y / m_num_of_segs.m_y
     );
     SetClipXYAndSize(xy, wh);
     // 表示  Draw
     failed = Display();
     if(failed){
-        SDL_Log("In pictures::Picture::Animation(): Animation could not displayed! Path: %s", m_path);
+        SDL_Log("In pictures::Picture::Animation(): Animation could not displayed! Path: %s", m_path_or_nickname.c_str());
         m_srcrct = tmp_srcrct;
         return 1;
     }
@@ -144,7 +154,7 @@ pictures::Pictures::~Pictures(){
     }
 }
 
-bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, common::Vec2<double> xy){
+bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path_or_nickname, common::Vec2<double> xy){
     int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合
@@ -154,11 +164,11 @@ bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, c
         return 1;
     }
     // 新しいピクチャを作りmapに追加  Create a new picture and add to the map
-    m_pictures[layer][no] = new pictures::Picture(m_game, m_textures, path, xy);
+    m_pictures[layer][no] = new pictures::Picture(m_game, m_textures, path_or_nickname, xy);
     return 0;
 }
 
-bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, std::string text, uint16_t pt, common::Vec2<double> xy){
+bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path_or_nickname, std::string text, uint16_t pt, common::Vec2<double> xy){
     int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合
@@ -168,15 +178,15 @@ bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path, s
         return 1;
     }
     // テクスチャがまだ作られていない場合
-    if(!m_text_textures->GetTextTextures()[path][text].count(pt)){
+    if(!m_text_textures->GetTextTextures()[path_or_nickname][text].count(pt)){
         // 新しいテクスチャを作成  Create new texture
-        m_text_textures->Create(path, text, pt);
+        m_text_textures->Create(path_or_nickname, text, pt);
     }
     // テクスチャから作られたピクチャの数を+1  +1 to the number of pictures created from the texture
-    uint32_t current_num_of_pictures = m_text_textures->GetNumOfPictures(path, text, pt);
-    m_text_textures->SetNumOfPictures(path, text, pt, current_num_of_pictures + 1);
+    uint32_t current_num_of_pictures = m_text_textures->GetNumOfPictures(path_or_nickname, text, pt);
+    m_text_textures->SetNumOfPictures(path_or_nickname, text, pt, current_num_of_pictures + 1);
     // 新しいピクチャを作りmapに追加  Create a new picture and add to the map
-    m_pictures[layer][no] = new pictures::Picture(m_game, m_text_textures, path, text, pt, xy);
+    m_pictures[layer][no] = new pictures::Picture(m_game, m_text_textures, path_or_nickname, text, pt, xy);
     return 0;
 }
 
@@ -192,18 +202,18 @@ bool pictures::Pictures::Delete(pictures::LayerNo layer_and_no){
     }
     // テキストの場合  if text
     if(m_pictures[layer][no]->GetIsText()){
-        std::string path = m_pictures[layer][no]->GetPath();
+        std::string path_or_nickname = m_pictures[layer][no]->GetPathOrNickname();
         std::string text = m_pictures[layer][no]->GetText();
         uint16_t pt = m_pictures[layer][no]->GetPt();
         // テクスチャから作られたピクチャの数を-1  -1 to the number of pictures created from the texture
-        uint32_t current_num_of_pictures = m_text_textures->GetNumOfPictures(path, text, pt);
-        m_text_textures->SetNumOfPictures(path, text, pt, current_num_of_pictures - 1);
+        uint32_t current_num_of_pictures = m_text_textures->GetNumOfPictures(path_or_nickname, text, pt);
+        m_text_textures->SetNumOfPictures(path_or_nickname, text, pt, current_num_of_pictures - 1);
         // テクスチャから作られたピクチャの数が0になった場合  When the number of pictures created from a texture becomes 0
         if(current_num_of_pictures - 1 == 0){
             // テクスチャを破棄する  Destroy texture
-            failed = m_text_textures->Destroy(path, text, pt);
+            failed = m_text_textures->Destroy(path_or_nickname, text, pt);
             if(failed){
-                SDL_Log("In pictures::Pictures::Delete(): Text texture could not be destroyed! Path: %s Text: %s Pt: %d", path.c_str(), text.c_str(), pt);
+                SDL_Log("In pictures::Pictures::Delete(): Text texture could not be destroyed! Path: %s Text: %s Pt: %d", path_or_nickname.c_str(), text.c_str(), pt);
                 return 1;
             }
         }
