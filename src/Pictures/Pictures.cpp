@@ -169,6 +169,11 @@ bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path_or
 }
 
 bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path_or_nickname, std::string text, uint16_t pt, common::Vec2<double> xy){
+    // ニックネームに対応するファイルパスが存在するとき  When the file path matching the nickname exists
+    if(GetTextTextures()->GetFonts()->GetNicknameToPath().count(path_or_nickname)){
+        // ニックネームからファイルパスを取得  Get file path from nickname
+        path_or_nickname = GetTextTextures()->GetFonts()->GetNicknameToPath()[path_or_nickname];
+    }
     int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合

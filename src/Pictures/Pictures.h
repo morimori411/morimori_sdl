@@ -47,6 +47,8 @@ namespace pictures{
         bool Animation();   
 
         // ゲッター  Getter
+        pictures::Textures* GetTextures() const {return m_textures;}
+        pictures::TextTextures* GetTextTextures() const {return m_text_textures;}
         bool GetIsText() const {return m_is_text;}
         std::string GetPathOrNickname() const {return m_path_or_nickname;}
         std::string GetText() const {return m_text;}
