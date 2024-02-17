@@ -9,6 +9,11 @@ add_library(morimori_sdl
     src/Pictures/Pictures.cpp
     src/Pictures/Camera.cpp
 )
+target_compile_options(
+    morimori_sdl PRIVATE
+    $<$<CXX_COMPILER_ID:GNU>: -Wall -Wextra>
+    $<$<CXX_COMPILER_ID:MSVC>: /W4>
+)
 target_include_directories(morimori_sdl INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 find_package(SDL2)
 find_package(SDL2_image)

@@ -59,10 +59,10 @@ namespace pictures{
         void SetXY(common::Vec2<double> xy){m_xy = xy;}
         void SetPosition(uint8_t position){m_position = position;}
         void SetClipXYAndSize(common::Vec2<int32_t> xy, common::Vec2<int32_t> wh){
-            m_srcrct->x = xy.m_x;
-            m_srcrct->y = xy.m_y;
-            m_srcrct->w = wh.m_x;
-            m_srcrct->h = wh.m_y;
+            m_srcrct->x = xy.x;
+            m_srcrct->y = xy.y;
+            m_srcrct->w = wh.x;
+            m_srcrct->h = wh.y;
         }
         void SetClipEdge(int32_t right, int32_t bottom, int32_t left, int32_t top){
             m_srcrct->x = left;

@@ -20,8 +20,8 @@ pictures::Picture::Picture(game::Game* game, pictures::Textures* textures, std::
     m_srcrct = new SDL_Rect;
     m_srcrct->x = 0;
     m_srcrct->y = 0;
-    m_srcrct->w = m_textures->GetTextureSize(m_path_or_nickname).m_x;
-    m_srcrct->h = m_textures->GetTextureSize(m_path_or_nickname).m_y;
+    m_srcrct->w = m_textures->GetTextureSize(m_path_or_nickname).x;
+    m_srcrct->h = m_textures->GetTextureSize(m_path_or_nickname).y;
     m_color.r = 255;
     m_color.g = 255;
     m_color.b = 255;
@@ -54,8 +54,8 @@ pictures::Picture::Picture(game::Game* game, pictures::TextTextures* text_textur
     m_srcrct = new SDL_Rect;
     m_srcrct->x = 0;
     m_srcrct->y = 0;
-    m_srcrct->w = m_text_textures->GetTextureSize(m_path_or_nickname, m_text, m_pt).m_x;
-    m_srcrct->h = m_text_textures->GetTextureSize(m_path_or_nickname, m_text, m_pt).m_y;
+    m_srcrct->w = m_text_textures->GetTextureSize(m_path_or_nickname, m_text, m_pt).x;
+    m_srcrct->h = m_text_textures->GetTextureSize(m_path_or_nickname, m_text, m_pt).y;
     m_color.r = 255;
     m_color.g = 255;
     m_color.b = 255;
@@ -105,16 +105,16 @@ bool pictures::Picture::Animation(){
     // 現在のアニメーションのコマ番号  Frame number of the current animation
     int32_t current_frame_number = int32_t(frames_from_animation_start / m_fpf);
     // 分割されたフレームの座標  Coordinates of split frames
-    common::Vec2 frame_xy(current_frame_number % int32_t(m_num_of_segs.m_x), int32_t(current_frame_number / m_num_of_segs.m_y));
+    common::Vec2 frame_xy(current_frame_number % int32_t(m_num_of_segs.x), int32_t(current_frame_number / m_num_of_segs.y));
     // srcrctを計算  Culculate the srcrct
     SDL_Rect* tmp_srcrct = m_srcrct;
     common::Vec2 xy(
-        m_textures->GetTextureSize(m_path_or_nickname).m_x / m_num_of_segs.m_x * frame_xy.m_x,
-        m_textures->GetTextureSize(m_path_or_nickname).m_y / m_num_of_segs.m_y * frame_xy.m_y
+        m_textures->GetTextureSize(m_path_or_nickname).x / m_num_of_segs.x * frame_xy.x,
+        m_textures->GetTextureSize(m_path_or_nickname).y / m_num_of_segs.y * frame_xy.y
     );
     common::Vec2 wh(
-        m_textures->GetTextureSize(m_path_or_nickname).m_x / m_num_of_segs.m_x,
-        m_textures->GetTextureSize(m_path_or_nickname).m_y / m_num_of_segs.m_y
+        m_textures->GetTextureSize(m_path_or_nickname).x / m_num_of_segs.x,
+        m_textures->GetTextureSize(m_path_or_nickname).y / m_num_of_segs.y
     );
     SetClipXYAndSize(xy, wh);
     // 表示  Draw

@@ -86,10 +86,10 @@ bool pictures::Textures::Draw(std::string path_or_nickname, SDL_Rect* srcrct, co
         path_or_nickname = m_nickname_to_path[path_or_nickname];
     }
     SDL_Rect dstrct; // SDL_RenderCopyEx dstrct
-    dstrct.x = xy.m_x;
-    dstrct.y = xy.m_y;
-    dstrct.w = srcrct->w * scale.m_x;
-    dstrct.h = srcrct->h * scale.m_y;
+    dstrct.x = xy.x;
+    dstrct.y = xy.y;
+    dstrct.w = srcrct->w * scale.x;
+    dstrct.h = srcrct->h * scale.y;
     // ピクチャの表示位置を合わせる  Align the display position of the picture
     switch(position){
         case BOTTOM_LEFT: dstrct.y -= dstrct.h; break;
@@ -217,10 +217,10 @@ bool pictures::TextTextures::Draw(std::string path_or_nickname, std::string text
         path_or_nickname = m_fonts->GetNicknameToPath()[path_or_nickname];
     }
     SDL_Rect dstrct; // SDL_RenderCopyEx dstrct
-    dstrct.x = xy.m_x;
-    dstrct.y = xy.m_y;
-    dstrct.w = srcrct->w * scale.m_x;
-    dstrct.h = srcrct->h * scale.m_y;
+    dstrct.x = xy.x;
+    dstrct.y = xy.y;
+    dstrct.w = srcrct->w * scale.x;
+    dstrct.h = srcrct->h * scale.y;
     // ピクチャの表示位置を合わせる  Align the display position of the picture
     switch(position){
         case BOTTOM_LEFT: dstrct.y -= dstrct.h; break;
