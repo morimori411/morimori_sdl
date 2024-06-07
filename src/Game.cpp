@@ -1,9 +1,10 @@
 #include "Game.h"
 
-game::Game::Game(std::string title, uint32_t flags_sdl_init, uint32_t flags_img_init, uint32_t window_flags, uint32_t renderer_flags, uint16_t fps)
+game::Game::Game(std::string title, uint32_t flags_sdl_init, uint32_t flags_img_init, common::Vec2<uint32_t> window_size_xy, uint32_t window_flags, uint32_t renderer_flags, uint16_t fps)
 :m_game_title(title)
 ,m_flags_sdl_init(flags_sdl_init)
 ,m_flags_img_init(flags_img_init)
+,m_window_size_xy(window_size_xy)
 ,m_window_flags(window_flags)
 ,m_renderer_flags(renderer_flags)
 ,m_fps(fps)
@@ -41,15 +42,15 @@ bool game::Game::Initialize(){
         m_game_title.c_str(), // title
         SDL_WINDOWPOS_CENTERED, // x
         SDL_WINDOWPOS_CENTERED, // y
-        0, // w
-        0, // h
+        m_window_size_xy.x, // w
+        m_window_size_xy.y, // h
         m_window_flags // flags
     );
     if(!m_window){
         SDL_Log("In game::Game::Initialize(): Window could not be created! SDL Error: %s", SDL_GetError());
         return 1;
     }
-    SDL_GetWindowSize(m_window, &m_window_size.x, &m_window_size.y);
+    SDL_GetWindowSize(m_window, &m_window_size_xy.x, &m_window_size_xy.y);
     // レンダラーを生成  Create renderer
     m_renderer = SDL_CreateRenderer(
         m_window, // window

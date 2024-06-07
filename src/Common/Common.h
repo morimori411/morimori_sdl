@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <cmath>
+
+const double M_2PI = M_PI * 2;
 
 namespace common{
     struct Color{

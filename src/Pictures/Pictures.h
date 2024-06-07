@@ -120,6 +120,8 @@ namespace pictures{
         bool Add(pictures::LayerNo layer_and_no, std::string path_or_nickname, std::string text, uint16_t pt, common::Vec2<double> xy);
         // ピクチャを削除  Delete a picture
         bool Delete(pictures::LayerNo layer_and_no);
+        // 指定したレイヤーの全てのピクチャを削除
+        bool DeleteAll(int32_t layer);
         // 指定したピクチャのアニメーションを開始  Starts animation of the specified picture
         void StartAnimation(pictures::LayerNo layer_and_no);
         // 指定したピクチャのアニメーションを終了  Stop animation of the specified picture

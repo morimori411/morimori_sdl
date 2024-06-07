@@ -229,6 +229,14 @@ bool pictures::Pictures::Delete(pictures::LayerNo layer_and_no){
     return 0;
 }
 
+bool pictures::Pictures::DeleteAll(int32_t layer){
+    int32_t num_pic = m_pictures[layer].size();
+    for(int i = 0; i < num_pic; i++){
+        Delete({layer, m_pictures[layer].begin()->first});
+    }
+    return 0;
+}
+
 void pictures::Pictures::StartAnimation(pictures::LayerNo layer_and_no){
     int32_t layer = layer_and_no.m_layer;
     int32_t no = layer_and_no.m_no;
