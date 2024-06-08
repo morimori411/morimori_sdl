@@ -8,3 +8,5 @@
 #include "Pictures/Textures.h"
 #include "Pictures/Pictures.h"
 #include "Pictures/Camera.h"
+#include "Inputs/Keyboard.h"
+#include "Inputs/Mouse.h"

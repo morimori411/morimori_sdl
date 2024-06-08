@@ -3,11 +3,14 @@ project(morimori_sdl CXX)
 add_library(morimori_sdl
     src/Game.cpp
     src/Common/Common.cpp
+    src/Common/Vector.cpp
     src/Collision/Collision.cpp
     src/Pictures/Fonts.cpp
     src/Pictures/Textures.cpp
     src/Pictures/Pictures.cpp
     src/Pictures/Camera.cpp
+    src/Inputs/Keyboard.cpp
+    src/Inputs/Mouse.cpp
 )
 target_compile_options(
     morimori_sdl PRIVATE
