@@ -154,9 +154,9 @@ pictures::Pictures::~Pictures(){
     }
 }
 
-bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path_or_nickname, common::Vec2<double> xy){
-    int32_t layer = layer_and_no.m_layer;
-    int32_t no = layer_and_no.m_no;
+bool pictures::Pictures::Add(pictures::LayerNo layer_no, std::string path_or_nickname, common::Vec2<int32_t> xy){
+    int32_t layer = layer_no.m_layer;
+    int32_t no = layer_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合
     if(m_pictures[layer].count(no)){
         // エラーを表示して異常終了
@@ -168,14 +168,14 @@ bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path_or
     return 0;
 }
 
-bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path_or_nickname, std::string text, uint16_t pt, common::Vec2<double> xy){
+bool pictures::Pictures::Add(pictures::LayerNo layer_no, std::string path_or_nickname, std::string text, uint16_t pt, common::Vec2<int32_t> xy){
     // ニックネームに対応するファイルパスが存在するとき  When the file path matching the nickname exists
     if(GetTextTextures()->GetFonts()->GetNicknameToPath().count(path_or_nickname)){
         // ニックネームからファイルパスを取得  Get file path from nickname
         path_or_nickname = GetTextTextures()->GetFonts()->GetNicknameToPath()[path_or_nickname];
     }
-    int32_t layer = layer_and_no.m_layer;
-    int32_t no = layer_and_no.m_no;
+    int32_t layer = layer_no.m_layer;
+    int32_t no = layer_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが既に存在する場合
     if(m_pictures[layer].count(no)){
         // エラーを表示して異常終了
@@ -195,10 +195,10 @@ bool pictures::Pictures::Add(pictures::LayerNo layer_and_no, std::string path_or
     return 0;
 }
 
-bool pictures::Pictures::Delete(pictures::LayerNo layer_and_no){
+bool pictures::Pictures::Delete(pictures::LayerNo layer_no){
     bool failed;
-    int32_t layer = layer_and_no.m_layer;
-    int32_t no = layer_and_no.m_no;
+    int32_t layer = layer_no.m_layer;
+    int32_t no = layer_no.m_no;
     // そのレイヤーのピクチャ番号に割り当てられたピクチャが存在しない場合
     if(!m_pictures[layer].count(no)){
         // エラーを表示して終了
@@ -237,16 +237,16 @@ bool pictures::Pictures::DeleteAll(int32_t layer){
     return 0;
 }
 
-void pictures::Pictures::StartAnimation(pictures::LayerNo layer_and_no){
-    int32_t layer = layer_and_no.m_layer;
-    int32_t no = layer_and_no.m_no;
+void pictures::Pictures::StartAnimation(pictures::LayerNo layer_no){
+    int32_t layer = layer_no.m_layer;
+    int32_t no = layer_no.m_no;
     m_pictures[layer][no]->SetInAnimation(true);
     m_pictures[layer][no]->SetStartGameFrame(m_game->GetFrames());
 }
 
-void pictures::Pictures::StopAnimation(pictures::LayerNo layer_and_no){
-    int32_t layer = layer_and_no.m_layer;
-    int32_t no = layer_and_no.m_no;
+void pictures::Pictures::StopAnimation(pictures::LayerNo layer_no){
+    int32_t layer = layer_no.m_layer;
+    int32_t no = layer_no.m_no;
     m_pictures[layer][no]->SetInAnimation(false);
 }
 
